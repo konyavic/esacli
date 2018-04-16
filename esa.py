@@ -164,7 +164,6 @@ class Esa:
       else:
         page = None
 
-
 def esa_flush(args):
   esa = Esa()
   esa.do_flush_cache()
@@ -190,17 +189,27 @@ def esa_ls(args):
   if not args.categories_only and not args.non_interactive:
     esa.do_ls_posts(args.category)
 
+def esa_show(args):
+  pass
+
+def esa_tree(args):
+  pass
+
+SUBCOMMANDS = {
+    "flush": esa_flush,
+    "ls": esa_ls,
+    "show": esa_show,
+    "tree": esa_tree,
+    }
+
 if __name__ == "__main__":
   if len(sys.argv) < 2:
     print("usage: esa [command]")
     sys.exit(1)
 
-  if sys.argv[1] == "flush":
-    esa_flush(sys.argv[2:])
-  elif sys.argv[1] == "ls":
-    esa_ls(sys.argv[2:])
-  elif sys.argv[1] == "tree":
-    pass
+  subcmd = sys.argv[1]
+  if subcmd in SUBCOMMANDS:
+    SUBCOMMANDS[subcmd](sys.argv[2:])
   else:
-    print("unknown command '%s'" % sys.argv[1])
+    print("unknown command '%s'" % subcmd)
     sys.exit(1)
