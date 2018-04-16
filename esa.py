@@ -196,20 +196,23 @@ def esa_tree(args):
   pass
 
 SUBCOMMANDS = {
-    "flush": esa_flush,
-    "ls": esa_ls,
-    "show": esa_show,
-    "tree": esa_tree,
+    "flush":    (esa_flush, "flush the cache"),
+    "ls":       (esa_ls,    "show list of categories and/or posts"),
+    "show":     (esa_show,  "show the content of a post"),
+    "tree":     (esa_tree,  "show the tree of all categories"),
     }
 
 if __name__ == "__main__":
   if len(sys.argv) < 2:
-    print("usage: esa [command]")
+    print("usage: esa [subcommand]")
+    print("available subcommands:")
+    for k, v in SUBCOMMANDS.items():
+      print("%s\t%s" % (k, v[1]))
     sys.exit(1)
 
   subcmd = sys.argv[1]
   if subcmd in SUBCOMMANDS:
-    SUBCOMMANDS[subcmd](sys.argv[2:])
+    SUBCOMMANDS[subcmd][0](sys.argv[2:])
   else:
-    print("unknown command '%s'" % subcmd)
+    print("unknown subcommand '%s'" % subcmd)
     sys.exit(1)
