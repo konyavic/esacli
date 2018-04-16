@@ -25,6 +25,7 @@ class Esa:
     self.team = os.environ["ESA_TEAM"]
     self.cache_dir = expanduser("~/.kyuujiki")
     os.system("mkdir -p %s" % self.cache_dir)
+    os.system("mkdir -p %s" % pathjoin(self.cache_dir, "posts"))
 
     self.cache_files = {
         "categories": pathjoin(self.cache_dir, "cache_categories.json"),
@@ -106,6 +107,7 @@ class Esa:
 
 
   def do_ls_categories(self, prefix="", recursive=False):
+    prefix = prefix.lstrip("/")
     category = self._find_category_by_prefix(prefix)
     if not category:
       print("'%s' not found" % prefix)
@@ -137,6 +139,7 @@ class Esa:
 
 
   def do_ls_post(self, prefix="", page=1):
+    prefix = prefix.lstrip("/")
     category_hash = self.get_category_hash(prefix)
     filepath = self.get_cached_page_path(category_hash, page)
     with open(filepath, "r") as f:
@@ -148,6 +151,7 @@ class Esa:
     return self.cache["posts"][category_hash][page]["next_page"]
 
   def do_ls_posts(self, prefix="", is_interactiv=True):
+    prefix = prefix.lstrip("/")
     page = 1
     while page:
       if not self.has_category_page_cache(prefix, page):
@@ -163,6 +167,15 @@ class Esa:
         page = next_page
       else:
         page = None
+
+  def do_show_post(self, full_name):
+    full_name = full_name.lstrip("/")
+    category = full_name[:full_name.rindex("/")]
+    category_hash = self.get_category_hash(category)
+    for page_content in self.cache["posts"][category_hash].values():
+      found = list(filter(lambda post: post["full_name"] == full_name, page_content["posts"]))
+      if found:
+        print(found[0]["body_md"])
 
 def esa_flush(args):
   esa = Esa()
@@ -190,7 +203,13 @@ def esa_ls(args):
     esa.do_ls_posts(args.category)
 
 def esa_show(args):
-  pass
+  parser = argparse.ArgumentParser()
+  parser.add_argument("full_name", nargs="?", type=str, default="")
+  args = parser.parse_args(args=args)
+
+  esa = Esa()
+  esa.load_cache()
+  esa.do_show_post(args.full_name)
 
 def esa_tree(args):
   pass
